@@ -6,9 +6,9 @@
 int main(int argc, char **argv)
 {
 
-    if (argc != 3 && argc != 4)
+    if (argc != 4)
     {
-        std::cerr << "usage: " << argv[0] << " <encode | query> <filepath> <string>" << std::endl;
+        std::cerr << "usage: " << argv[0] << " <encode | query> <filepath> <query only: string> <encode only: output-path>" << std::endl;
         exit(-1);
     }
 
@@ -19,7 +19,7 @@ int main(int argc, char **argv)
         read_column_file_new(argv[2], entries);
         huffman_table t(entries);
         huffman_codec c(&t);
-        c.write_enc_col(argv[2], "test_bitstream.txt", entries);
+        c.write_enc_col(argv[2], argv[3], entries);
     }
     else if (strcmp(argv[1], "query") == 0)
     {
