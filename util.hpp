@@ -8,6 +8,7 @@
 #include <map>
 #include <stdlib.h>
 #include <utility>
+#include <unordered_map>
 
 #include "huffman_table.hpp"
 
@@ -26,7 +27,7 @@ std::vector<std::string> *read_column_file(char *path)
 	return column;
 }
 
-int read_column_file_new(char *path, std::map<std::string, int> &entries)
+int read_column_file_new(char *path, std::unordered_map<std::string, int> &entries)
 {
 	std::ifstream column_file(path);
 	std::string line;
@@ -62,17 +63,12 @@ std::map<char, int> *ascii_frequencies(std::vector<std::string> *column)
 		for (int i = 0; i < row->size(); i++)
 			(*freq)[row->at(i)] = (*freq)[row->at(i)] + 1;
 	}
-	// for (auto it = freq->begin(); it != freq->end(); ++it) {
-	// 	if (it->first == '\n') {std::cout << "\\n " << it->second << std::endl; continue; }
-	// 	std::cout << it->first << " " << it->second << std::endl;
-	// }
 	return freq;
 }
 
 std::string print_bitstream(const std::vector<bool> *bitstream)
 {
 	std::string s;
-	// std::cout << bitstream->size() << std::endl;
 	for (int i = 0; i < bitstream->size(); i++)
 	{
 		s += bitstream->at(i) == true ? '1' : '0';
@@ -80,15 +76,16 @@ std::string print_bitstream(const std::vector<bool> *bitstream)
 	return s;
 }
 
-
-void print_word_frequencies(const std::map<std::string, int> &word_frequencies) {
+void print_word_frequencies(const std::unordered_map<std::string, int> &word_frequencies)
+{
 	for (auto it : word_frequencies)
 	{
 		std::cout << it.first << " : " << it.second << std::endl;
 	}
 }
 
-std::string export_word_frequencies(const std::map<std::string, int> &word_frequencies) {
+std::string export_word_frequencies(const std::unordered_map<std::string, int> &word_frequencies)
+{
 	std::string ret;
 	for (auto it : word_frequencies)
 	{
