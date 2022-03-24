@@ -6,22 +6,25 @@
 #include <queue>
 #include <iostream>
 
-typedef struct __attribute__((__packed__)) huffman_node {
-    char ascii;
+typedef struct huffman_node {
+    std::string * ascii;
     int  freq;
     bool leaf;
     huffman_node * left = NULL;
     huffman_node * right = NULL;
 } huffman_node;
 
-void huffman_tree_builder(huffman_node * h, std::vector<bool> &prefix, std::map<char, std::vector<bool>> * _a_to_bin) {
+void huffman_tree_builder(huffman_node * h, std::vector<bool> &prefix, std::map<std::string, std::vector<bool>> * _a_to_bin) {
 	std::vector<bool> lprefix = prefix;
 	std::vector<bool> rprefix = prefix;
 	lprefix.push_back(false);
 	rprefix.push_back(true);
     std::string pstr;
     for (int i = 0; i < prefix.size(); i++) {pstr.append(prefix[i] ? "1" : "0");}
-	if (h->leaf){ (*_a_to_bin)[h->ascii] = prefix; }
+	if (h->leaf){ 
+        // std::cout << std::string(h->ascii) << std::endl; 
+        (*_a_to_bin)[*h->ascii] = prefix; 
+    }
 	if (h->left != NULL) {
 		huffman_tree_builder(h->left, lprefix, _a_to_bin);
 	}
@@ -51,7 +54,7 @@ std::string huffman_tree_decoder(huffman_node * root, std::vector<bool> * str) {
 
 
         if (cur->leaf) {
-            plaintext += cur->ascii;
+            plaintext = *cur->ascii;
             // std::cout << " as " << cur->ascii << std::endl;
             // std::cout << "decoded ";
             std::string current_code;
@@ -65,23 +68,24 @@ std::string huffman_tree_decoder(huffman_node * root, std::vector<bool> * str) {
 class huffman_table {
 public:
     huffman_table() { 
-        _ascii_to_bits = new std::map<char, std::vector<bool>>();
-        _bits_to_ascii = new std::map<std::vector<bool>, char>();
+        _ascii_to_bits = new std::map<std::string, std::vector<bool>>();
+        _bits_to_ascii = new std::map<std::vector<bool>, std::string>();
     }
 
-    huffman_table(std::map<char, int> * freq) {
+    huffman_table(const std::map<std::string, int> & entries) {
         huffman_node ** tmp = (huffman_node **) malloc(sizeof(huffman_node *));
         huffman_node * root;
-        _ascii_to_bits = new std::map<char, std::vector<bool>>();
-        _bits_to_ascii = new std::map<std::vector<bool>, char>();
+        _ascii_to_bits = new std::map<std::string, std::vector<bool>>();
+        _bits_to_ascii = new std::map<std::vector<bool>, std::string>();
 
         auto cmp = [](huffman_node* left, huffman_node* right) { return left->freq > right->freq; };
         std::priority_queue<huffman_node*, std::vector<huffman_node*>, decltype(cmp)> q(cmp);
 
         // Create standalone huffman nodes for each
-        for (auto it = freq->begin(); it != freq->end(); ++it) {
+        for (auto it = entries.begin(); it != entries.end(); ++it) {
+            // std::cout << it->first;
             *tmp = (huffman_node *) malloc(sizeof(huffman_node));
-            (*tmp)->ascii = it->first;
+            (*tmp)->ascii = &(it->first);
             (*tmp)->freq = it->second;
             (*tmp)->left = NULL;
             (*tmp)->right = NULL;
@@ -137,13 +141,13 @@ public:
             for (auto c = it->second.begin(); c != it->second.end(); ++c) {
                 code += *c ? '1' : '0';
             }
-            std::cout << it->first << " : " << code << std::endl;
+            // std::cout << it->first << " : " << code << std::endl;
             code.clear();
         }
     }
 
     huffman_node * _huffman_tree;
-    std::map<char, std::vector<bool>> * _ascii_to_bits;
-    std::map<std::vector<bool>, char> * _bits_to_ascii;
+    std::map<std::string, std::vector<bool>> * _ascii_to_bits;
+    std::map<std::vector<bool>, std::string> * _bits_to_ascii;
 };
 #endif // HUFFMAN_TABLE_HPP
